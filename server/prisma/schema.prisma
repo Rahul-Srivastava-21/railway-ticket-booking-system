@@ -43,31 +43,69 @@ model Ticket {
 }
 
 model Train {
-  id          Int      @id @default(autoincrement())
-  name        String
-  number      String   @unique
-  stops       Stop[]
-  bookings    Booking[]
-  seats       Seat[]
+  id            Int        @id @default(autoincrement())
+  name          String
+  trainNumber   String     @unique
+  startStopId   Int
+  endStopId     Int
+  startStop     Stop       @relation("StartStop", fields: [startStopId], references: [id])
+  endStop       Stop       @relation("EndStop", fields: [endStopId], references: [id])
+  route         Route[]    // One-to-many relationship with Route
+  seats         Seat[]     // One-to-many relationship with Seat
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  Booking       Booking[]  // One-to-many relationship with Booking
 }
 
 model Stop {
-  id          Int      @id @default(autoincrement())
-  name        String
-  stationCode String   @unique
-  trainId     Int
-  train       Train    @relation(fields: [trainId], references: [id])
+  id           Int        @id @default(autoincrement())
+  name         String     @unique
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  routes       Route[]    // One-to-many relationship with Route
+  startTrains  Train[]    @relation("StartStop") // Many-to-many relation with Train for start
+  endTrains    Train[]    @relation("EndStop")   // Many-to-many relation with Train for end
+
+  reservedSeatsFrom  Seat[]  @relation("ReservedFrom") // Many-to-one relationship with Seat from 'ReservedFrom'
+  reservedSeatsTo    Seat[]  @relation("ReservedTo")   // Many-to-one relationship with Seat to 'ReservedTo'
+}
+
+model Route {
+  id        Int     @id @default(autoincrement())
+  trainId   Int
+  stopId    Int
+  stopOrder Int      // The order of the stop in the train route
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  train     Train   @relation(fields: [trainId], references: [id])
+  stop      Stop    @relation(fields: [stopId], references: [id])
 }
 
 model Seat {
-  id          Int      @id @default(autoincrement())
-  number      String
-  type        String   // "window", "aisle", etc.
-  status      String   @default("vacant") // "vacant", "occupied"
-  trainId     Int
-  train       Train    @relation(fields: [trainId], references: [id])
+  id                Int     @id @default(autoincrement())
+  trainId           Int
+  seatNumber        String
+  status            SeatStatus
+  reservedFromStop  Stop?   @relation("ReservedFrom", fields: [reservedFromStopId], references: [id])
+  reservedToStop    Stop?   @relation("ReservedTo", fields: [reservedToStopId], references: [id])
+  reservedFromStopId Int?
+  reservedToStopId   Int?
+
+  train Train       @relation(fields: [trainId], references: [id])
 
   Booking Booking[]
+}
+
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  WAITLIST
 }
 
 model Booking {
@@ -78,10 +116,11 @@ model Booking {
   train       Train    @relation(fields: [trainId], references: [id])
   seatId      Int
   seat        Seat     @relation(fields: [seatId], references: [id])
-  status      String   @default("confirmed") // "confirmed", "cancelled", "waitlist"
+  status      BookingStatus @default(CONFIRMED) // Changed to enum
   paymentId   Int?
   payment     Payment? @relation(fields: [paymentId], references: [id])
 }
+
 
 model Payment {
   id          Int      @id @default(autoincrement())
