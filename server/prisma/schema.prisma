@@ -25,6 +25,21 @@ model User {
   Booking Booking[]
 
   Payment Payment[]
+
+  Ticket Ticket[]
+}
+
+model Ticket {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  startStop      String   // e.g. 'A'
+  endStop        String   // e.g. 'D'
+  bookingStatus  String   // 'booked', 'available'
+  seatNumber     String   // e.g. 'A1'
+  paymentStatus  String   // 'pending', 'paid'
+  bookingTime    DateTime @default(now())
+  
+  user           User     @relation(fields: [userId], references: [id])
 }
 
 model Train {
