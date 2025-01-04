@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A railway ticket booking system website",
   "main": "index.js",
+  "type": "module",
   "private": true,
   "workspaces": [
     "client",
