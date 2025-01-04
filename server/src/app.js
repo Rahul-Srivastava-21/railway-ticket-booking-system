@@ -8,6 +8,7 @@ const app = express();
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
+import ticketRoutes from './routes/ticketRoutes.js'
 
 // Middleware
 app.use(cors());
@@ -15,6 +16,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tickets', ticketRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
