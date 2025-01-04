@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // Can be "user" or "admin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Booking Booking[]
+
+  Payment Payment[]
+}
+
+model Train {
+  id          Int      @id @default(autoincrement())
+  name        String
+  number      String   @unique
+  stops       Stop[]
+  bookings    Booking[]
+  seats       Seat[]
+}
+
+model Stop {
+  id          Int      @id @default(autoincrement())
+  name        String
+  stationCode String   @unique
+  trainId     Int
+  train       Train    @relation(fields: [trainId], references: [id])
+}
+
+model Seat {
+  id          Int      @id @default(autoincrement())
+  number      String
+  type        String   // "window", "aisle", etc.
+  status      String   @default("vacant") // "vacant", "occupied"
+  trainId     Int
+  train       Train    @relation(fields: [trainId], references: [id])
+
+  Booking Booking[]
+}
+
+model Booking {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  trainId     Int
+  train       Train    @relation(fields: [trainId], references: [id])
+  seatId      Int
+  seat        Seat     @relation(fields: [seatId], references: [id])
+  status      String   @default("confirmed") // "confirmed", "cancelled", "waitlist"
+  paymentId   Int?
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  status      String   @default("pending") // "pending", "completed", "failed"
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+
+  Booking Booking[]
+}
+
