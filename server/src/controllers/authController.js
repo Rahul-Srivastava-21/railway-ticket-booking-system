@@ -4,7 +4,7 @@ import prisma from '../config/prismaClient.js'; // Prisma client instance
 
 // Register a user
 const register = async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name , role} = req.body;
 
   try {
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -15,7 +15,7 @@ const register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name },
+      data: { email, password: hashedPassword, name , role},
     });
 
     res.status(201).json({ message: "User registered successfully!", user });
@@ -39,7 +39,7 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
     res.status(200).json({ message: "Login successful!", token });
   } catch (err) {

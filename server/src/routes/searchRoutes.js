@@ -1,9 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 import { searchTrains } from '../controllers/searchController.js';
+import { authenticateUser } from '../middlewares/authMiddleware.js';
 
-const router = express.Router();
+const router = Router();
 
-// Route to search trains
-router.get('/', searchTrains);
+// Search for trains (accessible by all users)
+router.get('/trains', authenticateUser, searchTrains );
 
 export default router;
