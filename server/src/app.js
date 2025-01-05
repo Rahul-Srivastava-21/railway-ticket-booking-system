@@ -10,7 +10,9 @@ const app = express();
 import authRoutes from './routes/authRoutes.js';
 import ticketRoutes from './routes/ticketRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
-
+import trainRoutes from './routes/trainRoutes.js'; 
+import trainRouteRoutes from './routes/trainRouteRoutes.js'; 
+import stopRoutes from './routes/stopRoutes.js'; // Import stop routes
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -19,7 +21,9 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/search', searchRoutes);
-
+app.use('/api/trains', trainRoutes);
+app.use('/api/routes', trainRouteRoutes);
+app.use('/api/stops', stopRoutes); 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack); // Log the error
