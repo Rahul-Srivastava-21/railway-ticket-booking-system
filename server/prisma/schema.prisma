@@ -83,21 +83,6 @@ model Route {
   stop      Stop    @relation(fields: [stopId], references: [id])
 }
 
-model Seat {
-  id                Int     @id @default(autoincrement())
-  trainId           Int
-  seatNumber        String
-  status            SeatStatus
-  reservedFromStop  Stop?   @relation("ReservedFrom", fields: [reservedFromStopId], references: [id])
-  reservedToStop    Stop?   @relation("ReservedTo", fields: [reservedToStopId], references: [id])
-  reservedFromStopId Int?
-  reservedToStopId   Int?
-
-  train Train       @relation(fields: [trainId], references: [id])
-
-  Booking Booking[]
-}
-
 enum SeatStatus {
   AVAILABLE
   RESERVED
@@ -109,17 +94,34 @@ enum BookingStatus {
   WAITLIST
 }
 
+model Seat {
+  id                Int     @id @default(autoincrement())
+  trainId           Int
+  seatNumber        String
+  status            SeatStatus @default(AVAILABLE)
+  reservedFromStop  Stop?   @relation("ReservedFrom", fields: [reservedFromStopId], references: [id])
+  reservedToStop    Stop?   @relation("ReservedTo", fields: [reservedToStopId], references: [id])
+  reservedFromStopId Int?
+  reservedToStopId   Int?
+  train             Train   @relation(fields: [trainId], references: [id])
+  Booking           Booking[]
+  
+  @@unique([trainId, seatNumber]) // Ensures seat numbers are unique within a train
+}
+
 model Booking {
   id          Int      @id @default(autoincrement())
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   trainId     Int
-  train       Train    @relation(fields: [trainId], references: [id])
+  train       Train    @relation(fields: [trainId], references: [id], onDelete: Cascade)
   seatId      Int
-  seat        Seat     @relation(fields: [seatId], references: [id])
-  status      BookingStatus @default(CONFIRMED) // Changed to enum
+  seat        Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  status      BookingStatus @default(CONFIRMED)
   paymentId   Int?
   payment     Payment? @relation(fields: [paymentId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt @default(now())
 }
 
 
