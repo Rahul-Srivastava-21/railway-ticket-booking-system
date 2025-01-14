@@ -3,22 +3,37 @@ import prisma from '../config/prismaClient.js';
 // Add a new train route
 export const addTrainRoute = async (req, res) => {
   try {
-    const { trainId, stopId, stopOrder } = req.body;
+    const { stopIds } = req.body;
 
-    if (!trainId || !stopId || stopOrder === undefined) {
-      return res.status(400).json({ success: false, message: 'All fields are required.' });
+    if (!stopIds || stopIds.length < 2) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'At least two stops are required.' 
+      });
     }
 
-    // Create new route
-    const newRoute = await prisma.route.create({
-      data: {
-        trainId,
-        stopId,
-        stopOrder,
-      },
+    // Create a new route group
+    const routeGroup = await prisma.routeGroup.create({
+      data: {}
     });
 
-    res.status(201).json({ success: true, message: 'Route added successfully.', route: newRoute });
+    // Create route entries for each stop
+    const routeEntries = await Promise.all(stopIds.map((stopId, index) => {
+      return prisma.route.create({
+        data: {
+          stopId,
+          stopOrder: index + 1,
+          routeGroupId: routeGroup.id
+        }
+      });
+    }));
+
+    res.status(201).json({
+      success: true,
+      message: 'Route template created successfully',
+      routeGroupId: routeGroup.id,
+      routes: routeEntries
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Internal server error.' });

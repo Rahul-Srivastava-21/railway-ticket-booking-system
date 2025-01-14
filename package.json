@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-   "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\"",
     "start:client": "npm run dev --workspace client",
     "start:server": "npm run dev --workspace server"
   },
@@ -19,5 +19,12 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "fs": "^0.0.1-security",
+    "nodemailer": "^6.9.16",
+    "path": "^0.12.7",
+    "pdfkit": "^0.16.0"
   }
 }

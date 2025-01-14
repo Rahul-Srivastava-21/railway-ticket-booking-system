@@ -1,13 +1,13 @@
-// import express from 'express';
-// import { authenticateUser } from '../middlewares/authMiddleware.js';
-// import { bookTicket, getTicket, getUserTickets, cancelTicket } from '../controllers/ticketController.js';
+import express from 'express';
+import { authenticateUser } from '../middlewares/authMiddleware.js';
+import { fetchTicketDetails, generatePDFTicket } from '../controllers/ticketController.js';
 
-// const router = express.Router();
+const router = express.Router();
 
-// // Routes related to ticket booking
-// router.post('/book', authenticateUser, bookTicket);       // Book a new ticket
-// router.get('/:ticketId', authenticateUser, getTicket);    // Get a specific ticket details
-// router.get('/', authenticateUser, getUserTickets);        // Get all tickets for the logged-in user
-// router.post('/cancel', authenticateUser, cancelTicket);   // Cancel a booked ticket
+// Fetch ticket details
+router.get('/:id', authenticateUser, fetchTicketDetails);
 
-// export default router;
+// Generate PDF ticket
+router.get('/:id/pdf', authenticateUser, generatePDFTicket);
+
+export default router;

@@ -47,16 +47,21 @@ model Train {
   id            Int        @id @default(autoincrement())
   name          String
   trainNumber   String     @unique
-  startStopId   Int
-  endStopId     Int
-  startStop     Stop       @relation("StartStop", fields: [startStopId], references: [id])
-  endStop       Stop       @relation("EndStop", fields: [endStopId], references: [id])
   route         Route[]    // One-to-many relationship with Route
   seats         Seat[]     // One-to-many relationship with Seat
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   Booking       Booking[]  // One-to-many relationship with Booking
+
+  // The start and end stops are now part of the Train model
+  startStopId   Int?
+  endStopId     Int?
+  startStop     Stop?      @relation("StartStop", fields: [startStopId], references: [id])
+  endStop       Stop?      @relation("EndStop", fields: [endStopId], references: [id])
+
+  RouteGroup RouteGroup[]
 }
+
 
 model Stop {
   id           Int        @id @default(autoincrement())
@@ -72,15 +77,24 @@ model Stop {
 }
 
 model Route {
-  id        Int     @id @default(autoincrement())
-  trainId   Int
+  id        Int      @id @default(autoincrement())
+  trainId   Int?
   stopId    Int
   stopOrder Int      // The order of the stop in the train route
+  routeGroupId Int   // New field to group stops of same route
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  train     Train   @relation(fields: [trainId], references: [id])
-  stop      Stop    @relation(fields: [stopId], references: [id])
+  train     Train?    @relation(fields: [trainId], references: [id])
+  stop      Stop      @relation(fields: [stopId], references: [id])
+  routeGroup RouteGroup @relation(fields: [routeGroupId], references: [id])
+}
+
+// New model to group routes
+model RouteGroup {
+  id        Int      @id @default(autoincrement())
+  routes    Route[]
+  trains    Train[]
 }
 
 enum SeatStatus {
@@ -103,7 +117,7 @@ model Seat {
   reservedToStop    Stop?   @relation("ReservedTo", fields: [reservedToStopId], references: [id])
   reservedFromStopId Int?
   reservedToStopId   Int?
-  train             Train   @relation(fields: [trainId], references: [id])
+  train             Train   @relation(fields: [trainId], references: [id],onDelete: Cascade)
   Booking           Booking[]
   
   @@unique([trainId, seatNumber]) // Ensures seat numbers are unique within a train
