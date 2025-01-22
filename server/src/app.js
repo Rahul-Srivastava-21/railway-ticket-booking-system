@@ -14,6 +14,7 @@ import trainRoutes from './routes/trainRoutes.js';
 import trainRouteRoutes from './routes/trainRouteRoutes.js'; 
 import stopRoutes from './routes/stopRoutes.js'; // Import stop routes
 import bookingRoutes from './routes/bookingRoutes.js';
+import routeGroupsRoute from "./routes/routeGroupsRoute.js";
 
 
 // Middleware
@@ -28,6 +29,7 @@ app.use('/api/trains', trainRoutes);
 app.use('/api/routes', trainRouteRoutes);
 app.use('/api/stops', stopRoutes); 
 app.use('/api/bookings', bookingRoutes);
+app.use('/api',routeGroupsRoute)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
